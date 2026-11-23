@@ -8,6 +8,7 @@ import { AmountVisibilityProvider } from './lib/amountVisibility';
 import { api } from './lib/api';
 import { ImportsPage } from './pages/ImportsPage';
 import { Onboarding } from './pages/Onboarding';
+import { TransactionsPage } from './pages/TransactionsPage';
 import styles from './App.module.css';
 
 /** `/` shows the onboarding until something has been imported, then goes to the transaction list. */
@@ -35,7 +36,7 @@ export function App() {
               <div className={styles.content}>
                 <Switch>
                   <Route path="/" component={Home} />
-                  <Route path="/transactions"><EmptyState title="준비 중이에요" /></Route>
+                  <Route path="/transactions" component={TransactionsPage} />
                   <Route path="/manage/imports" component={ImportsPage} />
                   <Route><EmptyState title="없는 화면이에요" /></Route>
                 </Switch>

@@ -1,0 +1,20 @@
+.title {
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.summary {
+  margin: 20px 4px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
