@@ -1,0 +1,105 @@
+.period {
+  font-size: 15px;
+  color: var(--text-sub);
+  font-variant-numeric: tabular-nums;
+}
+
+.count {
+  margin-top: 2px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.stat {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--bg);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.ok {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-hint);
+}
+
+.notice {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-control);
+  background: var(--primary-weak);
+}
+.warn { background: #fff4e5; }
+
+.noticeTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.warnings {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.sample {
+  margin-top: 12px;
+  font-size: 14px;
+}
+.sample summary {
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.rows {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.rowDate {
+  width: 44px;
+  flex-shrink: 0;
+  color: var(--text-hint);
+  font-variant-numeric: tabular-nums;
+}
+
+.rowContent {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dim { color: var(--text-hint); }
