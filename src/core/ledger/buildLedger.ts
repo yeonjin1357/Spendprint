@@ -41,37 +41,42 @@ export function buildLedger(files: ImportFile[]): LedgerResult {
     if (a.importedSeq !== b.importedSeq) return b.importedSeq - a.importedSeq;
     return b.id - a.id;
   });
-  const prepared = ordered.map((file) => ({
-    file,
-    methods: new Set(file.transactions.map((t) => t.method)),
-    fingerprints: fingerprintRows(file.transactions),
-    /** Accepted entries of this file by twin key, for rename detection by older files. */
-    accepted: new Map<string, LedgerEntry[]>(),
-  }));
+  const prepared = ordered.map((file) => {
+    /** Row positions by twin key, for rename detection by older files. */
+    const byTwin = new Map<string, number[]>();
+    file.transactions.forEach((t, position) => {
+      const key = twinKey(t);
+      if (!byTwin.has(key)) byTwin.set(key, []);
+      byTwin.get(key)!.push(position);
+    });
+    return { file, methods: new Set(file.transactions.map((t) => t.method)), fingerprints: fingerprintRows(file.transactions), byTwin };
+  });
 
   const entries: LedgerEntry[] = [];
-  const paired = new Set<LedgerEntry>();
   const renamedPairs: LedgerResult['renamedPairs'] = [];
   const renameCounts = new Map<string, number>();
   const keptCounts = new Map<string, number>();
 
   prepared.forEach((current, index) => {
+    // A newer row can stand in for at most one row of this file, so two identical old rows need two twins.
+    const consumed = new Set<string>();
+
     current.file.transactions.forEach((row, rowPosition) => {
       const newer = prepared.slice(0, index).filter((p) => p.file.window.start <= row.date && row.date <= p.file.window.end);
       if (newer.some((p) => p.methods.has(row.method))) return; // superseded by a newer file
 
       let kept = false;
       if (newer.length > 0) {
+        // The method is gone from every newer file covering this date. If any of them has the same
+        // transaction under another method, it was renamed: that file (or one newer still) decides
+        // what became of it, even when the transaction no longer exists in the newest file.
         const key = twinKey(row);
-        let twin: LedgerEntry | undefined;
         for (const p of newer) {
-          twin = p.accepted.get(key)?.find((e) => !paired.has(e));
-          if (twin) break;
-        }
-        if (twin) {
-          paired.add(twin);
-          renamedPairs.push({ fromFingerprint: current.fingerprints[rowPosition], toFingerprint: twin.fingerprint });
-          const renameKey = `${row.method}${SEP}${twin.method}`;
+          const position = p.byTwin.get(key)?.find((candidate) => !consumed.has(`${p.file.id}:${candidate}`));
+          if (position === undefined) continue;
+          consumed.add(`${p.file.id}:${position}`);
+          renamedPairs.push({ fromFingerprint: current.fingerprints[rowPosition], toFingerprint: p.fingerprints[position] });
+          const renameKey = `${row.method}${SEP}${p.file.transactions[position].method}`;
           renameCounts.set(renameKey, (renameCounts.get(renameKey) ?? 0) + 1);
           return;
         }
@@ -79,11 +84,7 @@ export function buildLedger(files: ImportFile[]): LedgerResult {
         keptCounts.set(row.method, (keptCounts.get(row.method) ?? 0) + 1);
       }
 
-      const entry: LedgerEntry = { ...row, importId: current.file.id, fingerprint: current.fingerprints[rowPosition], keptFromVanishedMethod: kept };
-      entries.push(entry);
-      const key = twinKey(row);
-      if (!current.accepted.has(key)) current.accepted.set(key, []);
-      current.accepted.get(key)!.push(entry);
+      entries.push({ ...row, importId: current.file.id, fingerprint: current.fingerprints[rowPosition], keptFromVanishedMethod: kept });
     });
   });
 

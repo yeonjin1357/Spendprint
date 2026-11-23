@@ -21,6 +21,14 @@ it('lists imports, shows gaps and undoes after confirmation', async () => {
   await waitFor(() => expect(undo).toHaveBeenCalledWith(7));
 });
 
+it('does not look empty when the history could not be loaded', async () => {
+  vi.spyOn(api, 'listImports').mockRejectedValue(new Error('down'));
+  vi.spyOn(api, 'status').mockRejectedValue(new Error('down'));
+  render(<ImportsPage />);
+  expect(await screen.findByText('기록을 불러오지 못했어요')).toBeTruthy();
+  expect(screen.queryByText('아직 가져온 파일이 없어요')).toBeNull();
+});
+
 it('says so when nothing has been imported', async () => {
   vi.spyOn(api, 'listImports').mockResolvedValue([]);
   vi.spyOn(api, 'status').mockResolvedValue({ hasData: false, importCount: 0, ledgerCount: 0, latestAsOf: null, gaps: [] });

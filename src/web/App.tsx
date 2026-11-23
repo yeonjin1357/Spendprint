@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Redirect, Route, Switch } from 'wouter';
+import { Button } from './components/Button';
 import { EmptyState } from './components/EmptyState';
 import { Sidebar } from './components/Sidebar';
 import { ToastProvider } from './components/Toast';
@@ -14,14 +15,28 @@ import styles from './App.module.css';
 /** `/` shows the onboarding until something has been imported, then goes to the transaction list. */
 function Home() {
   const { version } = useImportFlow();
-  const [hasData, setHasData] = useState<boolean | null>(null);
+  const [state, setState] = useState<'loading' | 'empty' | 'has-data' | 'failed'>('loading');
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let alive = true;
-    api.status().then((s) => { if (alive) setHasData(s.hasData); }).catch(() => { if (alive) setHasData(false); });
+    setState('loading');
+    api.status()
+      .then((s) => { if (alive) setState(s.hasData ? 'has-data' : 'empty'); })
+      // A failure must never look like "no data yet": that reads as lost history.
+      .catch(() => { if (alive) setState('failed'); });
     return () => { alive = false; };
-  }, [version]);
-  if (hasData === null) return null;
-  if (hasData) return <Redirect to="/transactions" replace />;
+  }, [version, attempt]);
+  if (state === 'loading') return null;
+  if (state === 'has-data') return <Redirect to="/transactions" replace />;
+  if (state === 'failed') {
+    return (
+      <EmptyState
+        title="내역을 불러오지 못했어요"
+        description="Spendprint가 켜져 있는지 확인해 주세요. 기록은 지워지지 않았어요."
+        action={<Button onClick={() => setAttempt((n) => n + 1)}>다시 시도</Button>}
+      />
+    );
+  }
   return <Onboarding />;
 }
 

@@ -67,6 +67,24 @@ it('uses the newest file that still has the method', () => {
   expect(view([A2, B2, C])).toEqual(['2026-10-01 문구 X카드 식비 f3', '2026-05-12 서점 정정 Y카드 식비 f2 kept', '2026-02-02 옛 서점 Y카드 식비 f1']);
 });
 
+it('does not bring back a renamed transaction that a still newer file removed', () => {
+  const F1 = file(1, '2026-01-01', '2026-06-30', [raw('2026-05-10', -5000, '가게', 'W카드')]);
+  const F2 = file(2, '2026-04-01', '2026-09-30', [raw('2026-05-10', -5000, '가게', 'Z카드')]);
+  const F3 = file(3, '2026-05-01', '2026-10-31', [raw('2026-08-01', -100, '문구', 'Z카드')]);
+  expect(view([F1, F2, F3])).toEqual(['2026-08-01 문구 Z카드 식비 f3']);
+});
+
+it('counts a transaction once when its payment method was renamed twice', () => {
+  const F1 = file(1, '2026-01-01', '2026-06-30', [raw('2026-05-10', -5000, '가게', 'W카드')]);
+  const F2 = file(2, '2026-04-01', '2026-09-30', [raw('2026-05-10', -5000, '가게', 'Y카드')]);
+  const F3 = file(3, '2026-05-01', '2026-10-31', [raw('2026-05-10', -5000, '가게', 'Z카드')]);
+  const r = buildLedger([F1, F2, F3]);
+  expect(view([F1, F2, F3])).toEqual(['2026-05-10 가게 Z카드 식비 f3']);
+  expect(r.vanishedMethods).toEqual([]);
+  expect(r.renamedMethods).toEqual([{ from: 'W카드', to: 'Z카드', count: 1 }, { from: 'Y카드', to: 'Z카드', count: 1 }]);
+  expect(new Set(r.renamedPairs.map((p) => p.toFingerprint))).toEqual(new Set([r.entries[0].fingerprint]));
+});
+
 it('keeps both of two identical rows and joins non-overlapping files', () => {
   const D = file(1, '2026-01-01', '2026-01-31', [raw('2026-01-05', -100, '자판기', 'X카드'), raw('2026-01-05', -100, '자판기', 'X카드')]);
   const E = file(2, '2026-03-01', '2026-03-31', [raw('2026-03-05', -200, '자판기', 'X카드')]);

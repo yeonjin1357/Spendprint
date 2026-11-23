@@ -26,13 +26,16 @@ export function ImportsPage() {
   const [confirming, setConfirming] = useState<ImportRecord | null>(null);
   const [working, setWorking] = useState(false);
   const [reload, setReload] = useState(0);
+  const [failed, setFailed] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let alive = true;
+    setFailed(false);
     Promise.all([api.listImports(), api.status()])
       .then(([list, s]) => { if (alive) { setRecords(list); setStatus(s); } })
-      .catch(() => { if (alive) setRecords([]); });
+      // A failure must never look like "nothing imported": that reads as lost history.
+      .catch(() => { if (alive) { setRecords(null); setFailed(true); } });
     return () => { alive = false; };
   }, [version, reload]);
 
@@ -67,6 +70,16 @@ export function ImportsPage() {
             {status.gaps.map((gap) => <li key={gap.start}>{formatPeriod(gap)}</li>)}
           </ul>
         </div>
+      )}
+
+      {failed && (
+        <Card>
+          <EmptyState
+            title="기록을 불러오지 못했어요"
+            description="Spendprint가 켜져 있는지 확인해 주세요. 기록은 지워지지 않았어요."
+            action={<Button onClick={() => setReload((n) => n + 1)}>다시 시도</Button>}
+          />
+        </Card>
       )}
 
       {records !== null && records.length === 0 && (
