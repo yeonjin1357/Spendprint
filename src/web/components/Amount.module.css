@@ -1,0 +1,12 @@
+.amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.md { font-size: 15px; }
+.lg { font-size: 24px; letter-spacing: -0.01em; }
+.xl { font-size: 36px; letter-spacing: -0.02em; }
+
+.positive { color: var(--primary); }

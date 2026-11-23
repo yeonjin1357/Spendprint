@@ -1,0 +1,25 @@
+.card {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--radius-card);
+  padding: var(--space-card);
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+.clickable:hover { background: #fafbfc; }
+.clickable:active { transform: scale(0.99); }
+
+.title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-sub);
+}

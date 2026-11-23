@@ -1,0 +1,18 @@
+.button {
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: 11px 18px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+  white-space: nowrap;
+}
+.button:hover:not(:disabled) { filter: brightness(0.96); }
+.button:active:not(:disabled) { transform: scale(0.98); }
+.button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.primary { background: var(--primary); color: #fff; }
+.secondary { background: var(--bg); color: var(--text-sub); }
+.danger { background: #fdecee; color: var(--danger); }

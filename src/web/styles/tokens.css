@@ -1,0 +1,23 @@
+:root {
+  /* colour */
+  --bg: #f2f4f6;
+  --surface: #ffffff;
+  --text: #191f28;
+  --text-sub: #4e5968;
+  --text-hint: #8b95a1;
+  --line: #e5e8eb;
+  --primary: #3182f6;
+  --primary-weak: #e8f3ff;
+  --danger: #f04452;
+
+  /* shape */
+  --radius-card: 20px;
+  --radius-control: 12px;
+  --space-card: 24px;
+  --gap: 16px;
+
+  /* layout */
+  --sidebar-width: 240px;
+  --content-max: 1120px;
+  --page-padding: 32px;
+}
